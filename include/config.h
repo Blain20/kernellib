@@ -3,7 +3,7 @@
 # define CLONABLE_SUBDIR	"/obj/"
 # define LIGHTWEIGHT_SUBDIR	"/data/"
 
-/* 
+/*
  * Support both the old pre 1.4 network package, and 1.4's network extensions
  */
 # if defined( __NETWORK_PACKAGE__ ) || defined( __NETWORK_EXTENSIONS__ )

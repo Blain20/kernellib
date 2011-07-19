@@ -1615,45 +1615,6 @@ static string editor(varargs string cmd)
     return result;
 }
 
-
-# ifdef __SKOTOS__
-/*
- * NAME:	execute_program()
- * DESCRIPTION:	execute external program
- */
-static void execute_program(string cmdline)
-{
-    object conn;
-
-    if (previous_program() == LIB_CONN) {
-	::execute_program(cmdline);
-    } else {
-	CHECKARG(cmdline, 1, "execute_program");
-
-	if (creator == "System" && this_object() && next) {
-	    if (function_object("query_conn", this_object()) != LIB_USER) {
-		error("Not a user object");
-	    }
-	    if (this_object()->query_conn()) {
-		error("Already connected");
-	    }
-	    catch {
-		rlimits (-1; -1) {
-		    conn = clone_object(BINARY_CONN, "System");
-		    conn->execute_program(cmdline);
-		}
-	    } : {
-		rlimits (-1; -1) {
-		    destruct_object(conn);
-		}
-		error(::call_trace()[1][TRACE_FIRSTARG][1]);
-	    }
-	}
-    }
-}
-# endif
-
-
 # ifdef SYS_NETWORKING
 /*
  * NAME:	connect()
