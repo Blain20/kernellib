@@ -1953,7 +1953,7 @@ static void cmd_status(object user, string cmd, string str)
     if (!str) {
 	status = status();
 	str =
-"                                          server:       " +
+"                                          Server:       " +
   (string) status[ST_VERSION] + "\n" +
 "------------ Swap device -------------\n" +
 "sectors:  " + ntoa(status[ST_SWAPUSED]) + " / " +
