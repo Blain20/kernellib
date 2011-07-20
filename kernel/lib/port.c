@@ -6,6 +6,7 @@ private object driver;		/* driver object */
 private object userd;		/* user manager object */
 private string porttype;	/* telnet or binary */
 private object udpport;		/* optional associated UDP port */
+private int port;		/* port # */
 
 /*
  * NAME:	create()
@@ -44,6 +45,17 @@ static int open_port(string protocol, int port, varargs int udp)
 }
 
 /*
+ * NAME:	set_port()
+ * DESCRIPTION:	select slot in ports we are associated with
+ */
+void set_port(int new_port)
+{
+    if (previous_object() == userd) {
+	port = new_port;
+    }
+}
+
+/*
  * NAME:	close()
  * DESCRIPTION:	close associated UDP port, if there is any
  */
@@ -63,13 +75,13 @@ static object open_connection(string host, int port);
  * NAME:	_connection()
  * DESCRIPTION:	internal version of connection()
  */
-private object _connection(mixed *tls, string host, int port)
+private object _connection(mixed *tls, string host, int remote_port)
 {
     object conn, user;
 
-    conn = call_other(userd, porttype + "_connection", nil);
+    conn = call_other(userd, porttype + "_connection", nil, port);
     if (udpport) {
-	conn->set_udpchannel(udpport, host, port);
+	conn->set_udpchannel(udpport, host, remote_port);
     }
     user = open_connection(host, port);
     if (user) {

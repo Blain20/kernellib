@@ -4,9 +4,6 @@
 # include <kernel/access.h>
 # include <kernel/user.h>
 # include <kernel/tls.h>
-# ifdef SYS_NETWORKING
-#  include <kernel/net.h>
-# endif
 # include <status.h>
 # include <trace.h>
 
@@ -19,12 +16,6 @@ object userd;		/* user manager object */
 object initd;		/* init manager object */
 object objectd;		/* object manager object */
 object errord;		/* error manager object */
-# ifdef SYS_NETWORKING
-object telnet;
-object binary;
-object port_master;
-int port;
-# endif
 int tls_size;		/* thread local storage size */
 
 /*
@@ -479,21 +470,6 @@ private void _restored(mixed *tls)
 	    initd->reboot();
 	}
     }
-# ifdef SYS_NETWORKING
-    if (telnet) {
-	telnet->listen("telnet", TELNET_PORT);
-    }
-    if (binary) {
-	binary->listen("tcp", BINARY_PORT);
-    }
-    if (restore_object("/kernel/data/binary_port")) {
-	object emergency;
-
-	emergency = clone_object(port_master);
-	rsrcd->rsrc_incr("System", "objects", nil, 1, 1);
-	emergency->listen("tcp", port);
-    }
-# endif
 
     message("State restored.\n\n");
 }

@@ -1,5 +1,6 @@
 # include <kernel/kernel.h>
 # include <kernel/net.h>
+# include <kernel/user.h>
 
 inherit LIB_PORT;
 
@@ -20,9 +21,9 @@ static void create(int clone)
  */
 void listen(string protocol, int port)
 {
-    if (previous_program() == DRIVER) {
+    if (previous_program() == USERD) {
 	if (!open_port(protocol, port)) {
-	    previous_object()->message("open_port(" + protocol + ", " + port +
+	    DRIVER->message("open_port(" + protocol + ", " + port +
 				       ") failed!\n");
 	}
     }

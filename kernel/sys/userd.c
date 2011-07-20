@@ -10,9 +10,16 @@
 
 
 object *users;		/* user mappings */
+# ifdef SYS_NETWORKING
+object *ports;		/* ports we open ourselves */
+# endif
 mapping names;		/* name : connection object */
 object *connections;	/* saved connections */
 mapping telnet, binary;	/* port managers */
+
+# ifdef SYS_NETWORKING
+private void initialize_default_ports();
+# endif
 
 /*
  * NAME:	create()
@@ -24,12 +31,19 @@ static void create()
     if (!find_object(TELNET_CONN)) { compile_object(TELNET_CONN); }
     if (!find_object(BINARY_CONN)) { compile_object(BINARY_CONN); }
     if (!find_object(DEFAULT_USER)) { compile_object(DEFAULT_USER); }
+# ifdef SYS_NETWORKING
+    if (!find_object(PORT_OBJECT)) { compile_object(PORT_OBJECT); }
+# endif
 
     /* initialize user arrays */
     users = ({ });
     names = ([ ]);
     telnet = ([ ]);
     binary = ([ ]);
+# ifdef SYS_NETWORKING
+    ports = ({ });
+    initialize_default_ports();
+# endif
 }
 
 /*
@@ -293,7 +307,48 @@ void reboot()
 	    connections = nil;
 	}
 
+	if (ports) {
+	    for (i = sizeof(ports); --i >= 0; ) {
+		destruct_object(ports[i]);
+	    }
+	}
+
+	ports = ({ });
 	users = ({ });
 	names = ([ ]);
     }
 }
+
+# ifdef SYS_NETWORKING
+private void initialize_default_ports()
+{
+    int *binary_ports;
+    int *telnet_ports;
+    int i;
+
+    binary_ports = status(ST_BINARYPORTS);
+    telnet_ports = status(ST_TELNETPORTS);
+
+    for (i = sizeof(binary_ports) - 1; i >= 0; i--) {
+	object port;
+
+	port = clone_object(PORT_OBJECT);
+	port->set_port(i);
+	port->listen("tcp", binary_ports[i]);
+	DRIVER->message("Opened tcp port " + binary_ports[i] + "\n");
+
+	ports += ({ port });
+    }
+
+    for (i = sizeof(telnet_ports) - 1; i >= 0; i--) {
+	object port;
+
+	port = clone_object(PORT_OBJECT);
+	port->set_port(i);
+	port->listen("telnet", telnet_ports[i]);
+	DRIVER->message("Opened telnet port " + telnet_ports[i] + "\n");
+
+	ports += ({ port });
+    }
+}
+# endif
