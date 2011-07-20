@@ -307,6 +307,7 @@ void reboot()
 	    connections = nil;
 	}
 
+# ifdef SYS_NETWORKING
 	if (ports) {
 	    for (i = sizeof(ports); --i >= 0; ) {
 		destruct_object(ports[i]);
@@ -314,6 +315,7 @@ void reboot()
 	}
 
 	ports = ({ });
+# endif
 	users = ({ });
 	names = ([ ]);
     }
