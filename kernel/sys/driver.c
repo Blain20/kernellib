@@ -461,7 +461,7 @@ void prepare_reboot()
  */
 private void _restored(mixed *tls)
 {
-    message("DGD " + status()[ST_VERSION] + "\n");
+    message(status()[ST_VERSION] + "\n");
 
     rsrcd->reboot();
     userd->reboot();
