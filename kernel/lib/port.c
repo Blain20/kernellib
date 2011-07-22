@@ -68,6 +68,22 @@ static void close()
     }
 }
 
+/*
+ * NAME:	reboot()
+ * DESCRIPTION:	destruct port object after a reboot
+ */
+void reboot()
+{
+    if (previous_object() == userd || SYSTEM()) {
+	if (udpport) {
+	    catch {
+		destruct_object(udpport);
+	    }
+	}
+	destruct_object(this_object());
+    }
+}
+
 
 static object open_connection(string host, int port);
 

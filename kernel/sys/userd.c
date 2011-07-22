@@ -310,11 +310,13 @@ void reboot()
 # ifdef SYS_NETWORKING
 	if (ports) {
 	    for (i = sizeof(ports); --i >= 0; ) {
-		destruct_object(ports[i]);
+		ports[i]->reboot();
 	    }
 	}
 
 	ports = ({ });
+
+	initialize_default_ports();
 # endif
 	users = ({ });
 	names = ([ ]);
