@@ -114,13 +114,6 @@ static void close(mixed *tls, int dest)
 	    destruct_object(this_object());
 	}
     }
-/*
-# ifdef SYS_NETWORKING
-    else {
-	set_mode(user->login(nil));
-    }
-# endif
-*/
 }
 
 /*
