@@ -699,18 +699,6 @@ static object *users()
 }
 
 /*
- * NAME:	connect()
- * DESCRIPTION:	establish an outbound connection
- */
-static void connect(string address, int port)
-{
-    if (!(this_object() <- LIB_CONN)) {
-	error("Permission denied");
-    }
-    ::connect(address, port);
-}
-
-/*
  * NAME:	swapout()
  * DESCRIPTION:	swap out all objects
  */
@@ -1682,5 +1670,17 @@ static object *ports()
     if (creator == "System") {
 	return ::ports();
     }
+}
+# else
+/*
+ * NAME:	connect()
+ * DESCRIPTION:	establish an outbound connection
+ */
+static void connect(string address, int port)
+{
+    if (!(this_object() <- LIB_CONN)) {
+	error("Permission denied");
+    }
+    ::connect(address, port);
 }
 # endif /* SYS_NETWORKING */
