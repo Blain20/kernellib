@@ -742,14 +742,16 @@ static void dump_state(varargs int incr)
  * NAME:	shutdown()
  * DESCRIPTION:	shutdown the system
  */
-static void shutdown(varargs int dummy)
+static void shutdown(varargs int hotboot)
 {
     if (creator != "System" || !this_object()) {
 	error("Permission denied");
     }
     rlimits (-1; -1) {
-	::find_object(DRIVER)->message("System halted.\n");
-	::shutdown(dummy);
+	::shutdown(hotboot);
+	if (!hotboot) {
+	    ::find_object(DRIVER)->message("System halted.\n");
+	}
     }
 }
 
