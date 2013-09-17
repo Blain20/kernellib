@@ -51,3 +51,9 @@
 
  - Replaced Hotboot support with upstream version.
  - Add empty directories to the repository, update installation instructions.
+
+1.5
+
+ - Allow filequota resource to be audited and recounted to handle external file
+   changes.
+ - Changelog stopped, further change information confined to git commit log.
