@@ -363,6 +363,119 @@ private object load(string path)
 }
 
 /*
+ * NAME:	count_filequota()
+ * DESCRIPTION:	count filequota resource from scratch
+ */
+mapping count_filequota()
+{
+    if (KERNEL() || SYSTEM()) {
+	mapping filequota;
+	mixed **dir;
+	string *filenames;
+	int *sizes;
+	int sz;
+	int i;
+
+	filequota = ([ ]);
+	filequota[nil] = 0;
+	filequota["System"] = 0;
+
+	/* first, the root directory's contents */
+	dir = get_dir("/*");
+	filenames = dir[0];
+	sizes = dir[1];
+
+	for (sz = sizeof(filenames) - 1; sz >= 0; sz--) {
+	    int count;
+
+	    switch("/" + filenames[sz]) {
+	    case USR_DIR:
+	        /* owners of contents vary */
+		if (sizes[sz] == -2) {
+		    /* it's a directory, dig in */
+		    mixed **homedir;
+		    string *users;
+		    string *sizes;
+		    int sz;
+
+		    filequota[nil] += 1; /* one for /home itself */
+		    homedir = get_dir(USR_DIR + "/*");
+		    users = homedir[0];
+		    sizes = homedir[1];
+
+		    for (sz = sizeof(users) - 1; sz >= 0; sz--) {
+			string user;
+
+			user = users[sz];
+
+			count = file_size(USR_DIR + "/" + user, 1);
+
+			if (!filequota[user]) {
+			    filequota[user] = 0;
+			}
+
+			filequota[user] += count;
+		    }
+		} else {
+		    /* it's not a directory */
+		    /* the admin is a weirdo btw */
+		    filequota[nil] += file_size(USR_DIR);
+		}
+		break;
+
+	    case "/kernel":
+		/* /kernel is owned by System */
+		filequota["System"] += dir_size("/kernel");
+		break;
+
+	    default:
+		/* everything else is owned by Ecru */
+		filequota[nil] += file_size("/" + filenames[sz], 1);
+		break;
+	    }
+	}
+
+	return filequota;
+    }
+}
+
+/*
+ * NAME:	fix_filequota()
+ * DESCRIPTION:	correct filequota resource
+ */
+void fix_filequota(mapping filequota)
+{
+    if (KERNEL() || SYSTEM()) {
+	string *usernames;
+	int sz;
+
+	sz = map_sizeof(filequota);
+	usernames = map_indices(filequota);
+
+	for (sz = map_sizeof(filequota) - 1; sz >= 0; sz--) {
+	    int delta;
+	    mixed *rsrc;
+	    string name;
+
+	    name = usernames[sz];
+
+	    rsrc = rsrcd->rsrc_get(name, "filequota");
+
+	    if (!rsrc) {
+		continue;
+	    }
+
+	    delta = filequota[name] - rsrc[RSRC_USAGE];
+
+	    if (delta) {
+		rsrcd->rsrc_incr(usernames[sz], "filequota", nil, delta, 1);
+	    }
+	}
+    }
+}
+
+
+/*
  * NAME:	_initialize()
  * DESCRIPTION:	initialize system, with proper TLS on the stack
  */
@@ -390,12 +503,7 @@ private void _initialize(mixed *tls)
 
     /* create initial resource owners */
     rsrcd->add_owner("System");
-    rsrcd->rsrc_incr("System", "filequota", nil,
-		     dir_size("/kernel") + file_size(USR_DIR + "/System",
-		     TRUE));
     rsrcd->add_owner(nil);	/* Ecru */
-    rsrcd->rsrc_incr(nil, "filequota", nil,
-		     file_size("/doc", TRUE) + file_size("/include", TRUE));
 
     /* load remainder of manager objects */
     call_other(rsrcobj, "???");
@@ -407,9 +515,10 @@ private void _initialize(mixed *tls)
     users = (accessd->query_users() - ({ "System" })) | ({ "admin" });
     for (i = sizeof(users); --i >= 0; ) {
 	rsrcd->add_owner(users[i]);
-	rsrcd->rsrc_incr(users[i], "filequota", nil,
-			 file_size(USR_DIR + "/" + users[i], TRUE));
     }
+
+    /* comprehensive filequota setup */
+    fix_filequota(count_filequota());
 
     /* correct object count */
     rsrcd->rsrc_incr("System", "objects", nil,
