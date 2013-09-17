@@ -503,12 +503,7 @@ private void _initialize(mixed *tls)
 
     /* create initial resource owners */
     rsrcd->add_owner("System");
-    rsrcd->rsrc_incr("System", "filequota", nil,
-		     dir_size("/kernel") + file_size(USR_DIR + "/System",
-		     TRUE));
     rsrcd->add_owner(nil);	/* Ecru */
-    rsrcd->rsrc_incr(nil, "filequota", nil,
-		     file_size("/doc", TRUE) + file_size("/include", TRUE));
 
     /* load remainder of manager objects */
     call_other(rsrcobj, "???");
@@ -520,8 +515,6 @@ private void _initialize(mixed *tls)
     users = (accessd->query_users() - ({ "System" })) | ({ "admin" });
     for (i = sizeof(users); --i >= 0; ) {
 	rsrcd->add_owner(users[i]);
-	rsrcd->rsrc_incr(users[i], "filequota", nil,
-			 file_size(USR_DIR + "/" + users[i], TRUE));
     }
 
     /* correct object count */
