@@ -517,6 +517,9 @@ private void _initialize(mixed *tls)
 	rsrcd->add_owner(users[i]);
     }
 
+    /* comprehensive filequota setup */
+    fix_filequota(count_filequota());
+
     /* correct object count */
     rsrcd->rsrc_incr("System", "objects", nil,
 		     status()[ST_NOBJECTS] -
