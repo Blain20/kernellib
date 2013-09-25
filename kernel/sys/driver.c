@@ -394,16 +394,32 @@ mapping count_filequota()
 		if (sizes[sz] == -2) {
 		    /* it's a directory, dig in */
 		    mixed **homedir;
+		    string *files;
+		    int *sizes;
 		    string *users;
-		    string *sizes;
 		    int sz;
 
 		    filequota[nil] += 1; /* one for /home itself */
 		    homedir = get_dir(USR_DIR + "/*");
-		    users = homedir[0];
+		    files = homedir[0];
 		    sizes = homedir[1];
+		    users = ({ });
+
+		    for (sz = sizeof(files) - 1; sz >= 0; sz--) {
+			if (sizes[sz] == -2) {
+			    users += ({ files[sz] });
+			} else {
+			    /* this is a file?! */
+			    filequota[nil] +=
+				file_size(USR_DIR + "/" + files[sz]);
+			}
+		    }
+
+		    /* don't create new users */
+		    users &= rsrcd->query_owners();
 
 		    for (sz = sizeof(users) - 1; sz >= 0; sz--) {
+			int count;
 			string user;
 
 			user = users[sz];
@@ -443,11 +459,14 @@ mapping count_filequota()
  * NAME:	fix_filequota()
  * DESCRIPTION:	correct filequota resource
  */
-void fix_filequota(mapping filequota)
+void fix_filequota()
 {
     if (KERNEL() || SYSTEM()) {
 	string *usernames;
 	int sz;
+	mapping filequota;
+
+	filequota = count_filequota();
 
 	sz = map_sizeof(filequota);
 	usernames = map_indices(filequota);
@@ -518,7 +537,7 @@ private void _initialize(mixed *tls)
     }
 
     /* comprehensive filequota setup */
-    fix_filequota(count_filequota());
+    fix_filequota();
 
     /* correct object count */
     rsrcd->rsrc_incr("System", "objects", nil,
