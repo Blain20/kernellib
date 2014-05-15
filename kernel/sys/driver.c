@@ -397,6 +397,8 @@ mapping count_filequota()
 		    string *files;
 		    int *sizes;
 		    string *users;
+		    string *clear;
+		    string *owners;
 		    int sz;
 
 		    filequota[nil] += 1; /* one for /home itself */
@@ -415,8 +417,17 @@ mapping count_filequota()
 			}
 		    }
 
+		    owners = rsrcd->query_owners();
+
+		    /* if anyone vanished, remove them */
+		    clear = owners - users;
+
 		    /* don't create new users */
-		    users &= rsrcd->query_owners();
+		    users &= owners;
+
+		    for (sz = sizeof(clear) - 1; sz >= 0; sz--) {
+			filequota[clear[sz]] = 0;
+		    }
 
 		    for (sz = sizeof(users) - 1; sz >= 0; sz--) {
 			int count;
