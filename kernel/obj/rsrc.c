@@ -25,15 +25,6 @@ static void create(int clone)
     }
 }
 
-void patch()
-{
-	resources = ([
-			"stack" :	({   0, -1, 0 }),
-			"ticks" :	({   0, -1, 0 }),
-			"tick usage" :	({ 0.0, -1, 0 })
-    ]) + resources;
-}
-
 /*
  * NAME:	set_owner()
  * DESCRIPTION:	set the owner of this resource
