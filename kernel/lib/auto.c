@@ -313,14 +313,14 @@ static object compile_object(string path, string source...)
      */
     rsrcd = ::find_object(RSRCD);
     rsrc = rsrcd->rsrc_get(uid, "objects");
-    if (rsrc[RSRC_USAGE] >= rsrc[RSRC_MAX] && rsrc[RSRC_MAX] >= 0) {
+    is_new = !::find_object(path);
+    if (is_new && rsrc[RSRC_USAGE] >= rsrc[RSRC_MAX] && rsrc[RSRC_MAX] >= 0) {
 	error("Too many objects");
     }
 
     /*
      * do the compiling
      */
-    is_new = !::find_object(path);
     stack = ::status()[ST_STACKDEPTH];
     ticks = ::status()[ST_TICKS];
     rlimits (-1; -1) {
