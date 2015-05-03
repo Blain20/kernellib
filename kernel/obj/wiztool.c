@@ -28,17 +28,6 @@ static void message(string str)
 }
 
 /*
- * NAME:	input()
- * DESCRIPTION:	deal with input from user
- */
-void input(string str)
-{
-    if (previous_object() == user) {
-	call_limited("process", str);
-    }
-}
-
-/*
  * NAME:	process()
  * DESCRIPTION:	process user input
  */
@@ -103,5 +92,20 @@ static void process(string str)
     default:
 	message("No command: " + str + "\n");
 	break;
+    }
+}
+
+/*
+ * NAME:	input()
+ * DESCRIPTION:	deal with input from user
+ */
+void input(string str)
+{
+    if (previous_object() == user) {
+	if (query_owner() == "admin") {
+	    process(str);
+	} else {
+	    call_limited("process", str);
+	}
     }
 }
