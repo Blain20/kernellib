@@ -314,7 +314,7 @@ static object compile_object(string path, string source...)
     rsrcd = ::find_object(RSRCD);
     rsrc = rsrcd->rsrc_get(uid, "objects");
     is_new = !::find_object(path);
-    if (is_new && rsrc[RSRC_USAGE] >= rsrc[RSRC_MAX] && rsrc[RSRC_MAX] >= 0) {
+    if (is_new && !kernel && rsrc[RSRC_USAGE] >= rsrc[RSRC_MAX] && rsrc[RSRC_MAX] >= 0) {
 	error("Too many objects");
     }
 
@@ -415,7 +415,7 @@ static object clone_object(string path, varargs string uid)
      * check resource usage
      */
     rsrcd = ::find_object(RSRCD);
-    if (path != BINARY_CONN && path != TELNET_CONN && path != RSRCOBJ) {
+    if (!KERNEL()) {
 	rsrc = rsrcd->rsrc_get(uid, "objects");
 	if (rsrc[RSRC_USAGE] >= rsrc[RSRC_MAX] && rsrc[RSRC_MAX] >= 0) {
 	    error("Too many objects");
