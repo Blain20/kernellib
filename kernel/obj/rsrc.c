@@ -10,38 +10,18 @@ int maxticks;		/* maximum amount of ticks currently allowed */
 
 /*
  * NAME:	create()
- * DESCRIPTION:	initialize max ticks
+ * DESCRIPTION:	initialize resource mapping
  */
 static void create(int clone)
 {
     if (clone) {
+	resources = ([
+			"stack" :	({   0, -1, 0 }),
+			"ticks" :	({   0, -1, 0 }),
+			"tick usage" :	({ 0.0, -1, 0 })
+		    ]);
 	maxticks = -1;
 	rsrcd = find_object(RSRCD);
-    }
-}
-
-/*
- * NAME:	set_resources()
- * DESCRIPTION:	initialize resource mapping
- */
-void set_resources(string *new_resources)
-{
-    if (previous_object() == rsrcd) {
-	int sz;
-
-	resources = ([ ]);
-
-	for (sz = sizeof(new_resources) - 1; sz >= 0; sz--) {
-	    string resource;
-
-	    resource = new_resources[sz];
-
-	    if (resource == "stack" || resource == "ticks") {
-		resources[resource] = ({   0, -1, 0 });
-	    } else if (resource == "tick usage") {
-		resources[resource] = ({ 0.0, -1, 0 });
-	    }
-	}
     }
 }
 
@@ -157,7 +137,7 @@ int *rsrc_get(string name, mixed *grsrc)
 	} else {
 	    if ((int) grsrc[GRSRC_DECAY] != 0 &&
 		(time=time()) - (int) rsrc[RSRC_DECAYTIME] >=
-						    (int) grsrc[GRSRC_PERIOD]) {
+		    (int) grsrc[GRSRC_PERIOD]) {
 		rlimits (-1; -1) {
 		    /* decay resource */
 		    decay_rsrc(rsrc, grsrc, time);

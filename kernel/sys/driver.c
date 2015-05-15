@@ -385,7 +385,7 @@ mapping count_filequota()
 	filenames = dir[0];
 	sizes = dir[1];
 
-	for (sz = sizeof(filenames) - 1; sz >= 0; sz--) {
+	for (sz = sizeof(filenames); --sz >= 0; ) {
 	    int count;
 
 	    switch("/" + filenames[sz]) {
@@ -393,21 +393,22 @@ mapping count_filequota()
 	        /* owners of contents vary */
 		if (sizes[sz] == -2) {
 		    /* it's a directory, dig in */
-		    mixed **homedir;
+		    mixed **usrdir;
 		    string *files;
 		    int *sizes;
 		    string *users;
 		    string *clear;
 		    string *owners;
+		    string *escheat;
 		    int sz;
 
-		    filequota[nil] += 1; /* one for /home itself */
-		    homedir = get_dir(USR_DIR + "/*");
-		    files = homedir[0];
-		    sizes = homedir[1];
+		    filequota[nil] += 1; /* one for /usr itself */
+		    usrdir = get_dir(USR_DIR + "/*");
+		    files = usrdir[0];
+		    sizes = usrdir[1];
 		    users = ({ });
 
-		    for (sz = sizeof(files) - 1; sz >= 0; sz--) {
+		    for (sz = sizeof(files); --sz >= 0; ) {
 			if (sizes[sz] == -2) {
 			    users += ({ files[sz] });
 			} else {
@@ -425,11 +426,14 @@ mapping count_filequota()
 		    /* don't create new users */
 		    users &= owners;
 
-		    for (sz = sizeof(clear) - 1; sz >= 0; sz--) {
+		    /* orphans belong to Ecru */
+		    escheat = users - owners;
+
+		    for (sz = sizeof(clear); --sz >= 0; ) {
 			filequota[clear[sz]] = 0;
 		    }
 
-		    for (sz = sizeof(users) - 1; sz >= 0; sz--) {
+		    for (sz = sizeof(users); --sz >= 0; ) {
 			int count;
 			string user;
 
@@ -442,6 +446,17 @@ mapping count_filequota()
 			}
 
 			filequota[user] += count;
+		    }
+
+		    for (sz = sizeof(escheat); --sz >= 0; ) {
+			int count;
+			string user;
+
+			user = escheat[sz];
+
+			count = file_size(USR_DIR + "/" + user, 1);
+
+			filequota[nil] += count;
 		    }
 		} else {
 		    /* it's not a directory */
@@ -482,7 +497,7 @@ void fix_filequota()
 	sz = map_sizeof(filequota);
 	usernames = map_indices(filequota);
 
-	for (sz = map_sizeof(filequota) - 1; sz >= 0; sz--) {
+	for (sz = map_sizeof(filequota); --sz >= 0; ) {
 	    int delta;
 	    mixed *rsrc;
 	    string name;
@@ -490,10 +505,6 @@ void fix_filequota()
 	    name = usernames[sz];
 
 	    rsrc = rsrcd->rsrc_get(name, "filequota");
-
-	    if (!rsrc) {
-		continue;
-	    }
 
 	    delta = filequota[name] - rsrc[RSRC_USAGE];
 
