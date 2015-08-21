@@ -322,3 +322,16 @@ void reboot(int downtime)
 	}
     }
 }
+
+/*
+ * NAME:	patch()
+ * DESCRIPTION:	Restore system resources that have been removed.
+ */
+void patch()
+{
+    resources = ([
+      "stack" :		({   0, -1, 0 }),
+      "ticks" :		({   0, -1, 0 }),
+      "tick usage" :	({ 0.0, -1, 0 })
+    ]) + resources;
+}
