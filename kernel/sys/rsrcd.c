@@ -170,13 +170,7 @@ void remove_rsrc(string name)
     int *rsrc, i;
     object *objects;
 
-    if (previous_program() == API_RSRC) {
-	rsrc = resources[name];
-
-	if (!rsrc) {
-	    error("No such resource");
-	}
-
+    if (previous_program() == API_RSRC && (rsrc=resources[name])) {
 	switch(name) {
 	case "callouts":
 	case "objects":
