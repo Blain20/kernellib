@@ -83,10 +83,6 @@ void remove_owner(string owner)
     mixed **rsrcs, *rsrc;
     int i;
 
-    if (!owners[owner]) {
-	error("No such resource owner: " + owner);
-    }
-
     if (previous_program() == API_RSRC && (obj=owners[owner])) {
 	names = map_indices(resources);
 	rsrcs = map_values(resources);
