@@ -329,9 +329,11 @@ void reboot(int downtime)
  */
 void patch()
 {
-    resources = ([
-      "stack" :		({   0, -1, 0 }),
-      "ticks" :		({   0, -1, 0 }),
-      "tick usage" :	({ 0.0, -1, 0 })
-    ]) + resources;
+    if (previous_object() == rsrcd) {
+	resources = ([
+	  "stack" :	  ({   0, -1, 0 }),
+	  "ticks" :	  ({   0, -1, 0 }),
+	  "tick usage" :  ({ 0.0, -1, 0 })
+	]) + resources;
+    }
 }
