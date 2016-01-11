@@ -1730,3 +1730,25 @@ nomask void _F_reset_resources()
 	resources = nil;
     }
 }
+
+/*
+ * NAME:	_F_query_resources()
+ * DESCRIPTION:	Return resources tracked by an object.
+ */
+nomask mapping _F_query_resources()
+{
+    if (SYSTEM() && resources) {
+	return resources[..];
+    }
+}
+
+/*
+ * NAME:	_F_reset_resources()
+ * DESCRIPTION:	Reset resources tracked by an object.
+ */
+nomask void _F_reset_resources()
+{
+    if (SYSTEM()) {
+	resources = nil;
+    }
+}
