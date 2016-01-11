@@ -317,7 +317,7 @@ void rsrc_reset(string owner, string name, varargs mixed index)
 	    error("No such resource");
 	}
 
-	return obj->rsrc_reset(name, index);
+	obj->rsrc_reset(name, index);
     }
 }
 
