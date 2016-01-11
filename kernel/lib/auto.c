@@ -1650,3 +1650,14 @@ nomask mapping _F_query_resources()
 	return resources[..];
     }
 }
+
+/*
+ * NAME:	query_resources()
+ * DESCRIPTION:	Reset resources tracked by an object.
+ */
+void _F_reset_resources()
+{
+    if (SYSTEM()) {
+	resources = nil;
+    }
+}
