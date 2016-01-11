@@ -197,15 +197,16 @@ int rsrc_incr(string name, mixed index, int incr, mixed *grsrc, int force)
 			 * indexed resource
 			 */
 			catch {
-			    if (typeof(index) == T_OBJECT) {
-				/* let object keep track */
-				index->_F_rsrc_incr(name, incr);
-			    } else if (typeof(rsrc[RSRC_INDEXED]) != T_MAPPING) {
+			    if (typeof(rsrc[RSRC_INDEXED]) != T_MAPPING) {
 				rsrc[RSRC_INDEXED] = ([ index : incr ]);
 			    } else if (!rsrc[RSRC_INDEXED][index]) {
 				rsrc[RSRC_INDEXED][index] = incr;
 			    } else if (!(rsrc[RSRC_INDEXED][index] += incr)) {
 				rsrc[RSRC_INDEXED][index] = nil;
+			    }
+			    if (typeof(index) == T_OBJECT) {
+				/* let object keep track */
+				index->_F_rsrc_incr(name, incr);
 			    }
 			} : {
 			    return FALSE;	/* error: increment failed */
