@@ -1639,3 +1639,14 @@ static string editor(varargs string cmd)
     } : error(TLSVAR2);
     return result;
 }
+
+/*
+ * NAME:	_F_query_resources()
+ * DESCRIPTION:	Return resources tracked by an object.
+ */
+nomask mapping _F_query_resources()
+{
+    if (SYSTEM() && resources) {
+	return resources[..];
+    }
+}
