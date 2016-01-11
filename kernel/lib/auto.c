@@ -65,7 +65,7 @@ nomask void _F_rsrc_incr(string rsrc, int incr)
  */
 void _F_rsrc_reset(string name)
 {
-    if (previous_program() == RSRC_OBJ) {
+    if (previous_program() == RSRCOBJ) {
 	resources[name] = nil;
     }
 }
