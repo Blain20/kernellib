@@ -121,9 +121,28 @@ static mixed *rsrc_get(string owner, string name)
 static int rsrc_incr(string owner, string name, mixed index, int incr,
 		     varargs int force)
 {
-    if (!name || (typeof(index) == T_OBJECT &&
-		  sscanf(object_name(index), "%*s#-1") != 0)) {
+    if (!name) {
 	error("Bad arguments for rsrc_incr");
     }
+    if (typeof(index) == T_OBJECT) {
+	if (sscanf(object_name(index), "%*s#-1") != 0) {
+	    error("Bad arguments for rsrc_incr");
+	}
+	if (index->query_owner() != owner) {
+	    error("Bad arguments for rsrc_incr");
+	}
+    }
     return rsrcd->rsrc_incr(owner, name, index, incr, force);
+}
+
+/*
+ * NAME:	rsrc_reset()
+ * DESCRIPTION:	reset a resource to zero
+ */
+static void rsrc_reset(string owner, string name, varargs mixed index)
+{
+    if (!name) {
+        error("Bad arguments for rsrc_reset");
+    }
+    rsrcd->rsrc_reset(owner, name, index);
 }

@@ -174,13 +174,7 @@ void remove_rsrc(string name)
     int *rsrc, i;
     object *objects;
 
-    if (previous_program() == API_RSRC) {
-	rsrc = resources[name];
-
-	if (!rsrc) {
-	    error("No such resource");
-	}
-
+    if (previous_program() == API_RSRC && (rsrc=resources[name])) {
 	switch(name) {
 	case "callouts":
 	case "objects":
@@ -307,6 +301,27 @@ int rsrc_incr(string owner, string name, mixed index, int incr,
 	}
 
 	return obj->rsrc_incr(name, index, incr, resources[name], force);
+    }
+}
+
+/*
+ * NAME:	rsrc_reset()
+ * DESCRIPTION:	reset a resource to zero
+ */
+void rsrc_reset(string owner, string name, varargs mixed index)
+{
+    if (KERNEL()) {
+	object obj;
+
+	if (!(obj=owners[owner])) {
+	    error("No such resource owner: " + owner);
+	}
+
+	if (!resources[name]) {
+	    error("No such resource");
+	}
+
+	return obj->rsrc_reset(name, index);
     }
 }
 
@@ -670,6 +685,37 @@ void reboot()
 	objects = map_values(owners);
 	for (i = sizeof(objects); --i >= 0; ) {
 	    objects[i]->reboot(downtime);
+	}
+    }
+}
+
+/*
+ * NAME:	patch()
+ * DESCRIPTION:	Restore system resources that have been removed.
+ */
+void patch()
+{
+    if (SYSTEM()) {
+	int sz;
+	object *rsrc_objs;
+
+	resources = ([
+	  "callouts" :		({ -1,  0,    0 }),
+	  "objects" :		({ -1,  0,    0 }),
+	  "events" :		({ -1,  0,    0 }),
+	  "stack" :		({ -1,  0,    0 }),
+	  "ticks" :		({ -1,  0,    0 }),
+	  "tick usage" :	({ -1, 10, 3600 }),
+	  "filequota" :		({ -1,  0,    0 }),
+	  "editors" :		({ -1,  0,    0 }),
+	  "create stack" :	({ -1,  0,    0 }),
+	  "create ticks" :	({ -1,  0,    0 }),
+	]) + resources;
+
+	rsrc_objs = map_values(owners);
+
+	for (sz = sizeof(rsrc_objs) - 1; sz >= 0; --sz) {
+	    rsrc_objs[sz]->patch();
 	}
     }
 }

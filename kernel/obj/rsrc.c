@@ -192,23 +192,20 @@ int rsrc_incr(string name, mixed index, int incr, mixed *grsrc, int force)
 		}
 
 		rlimits (-1; -1) {
-		    if (index) {
+		    if (index != nil) {
 			/*
 			 * indexed resource
 			 */
 			catch {
-			    if (typeof(index) == T_OBJECT) {
-				/* let object keep track */
-				if (sscanf(object_name(index), "%*s#-1")) {
-				    error("Cannot use non-persistent object for resource index");
-				}
-				index->_F_rsrc_incr(name, incr);
-			    } else if (typeof(rsrc[RSRC_INDEXED]) != T_MAPPING) {
+			    if (typeof(rsrc[RSRC_INDEXED]) != T_MAPPING) {
 				rsrc[RSRC_INDEXED] = ([ index : incr ]);
 			    } else if (!rsrc[RSRC_INDEXED][index]) {
 				rsrc[RSRC_INDEXED][index] = incr;
 			    } else if (!(rsrc[RSRC_INDEXED][index] += incr)) {
 				rsrc[RSRC_INDEXED][index] = nil;
+			    }
+			    if (typeof(index) == T_OBJECT) {
+				index->_F_rsrc_incr(name, incr);
 			    }
 			} : {
 			    return FALSE;	/* error: increment failed */
@@ -220,6 +217,34 @@ int rsrc_incr(string name, mixed index, int incr, mixed *grsrc, int force)
 	}
 
 	return TRUE;
+    }
+}
+
+/*
+ * NAME:	rsrc_reset()
+ * DESCRIPTION:	reset a resource
+ */
+void rsrc_reset(string name, mixed index, mixed *grsrc)
+{
+    if (previous_program() == RSRCD) {
+	if ((int) grsrc[GRSRC_DECAY] != 0) {
+	    resources[name] = nil;
+	} else {
+	    mixed *rsrc;
+
+	    rsrc = resources[name];
+	    if (!rsrc) {
+		return;
+	    } else if (index == nil) {
+		resources[name] = nil;
+	    } else {
+		rsrc[RSRC_INDEXED][index] = nil;
+		if (typeof(index) == T_OBJECT) {
+		    /* let object keep track */
+		    index->_F_rsrc_reset(name);
+		}
+	    }
+	}
     }
 }
 
@@ -320,5 +345,20 @@ void reboot(int downtime)
 		rsrc[RSRC_DECAYTIME] += downtime;
 	    }
 	}
+    }
+}
+
+/*
+ * NAME:	patch()
+ * DESCRIPTION:	Restore system resources that have been removed.
+ */
+void patch()
+{
+    if (previous_object() == rsrcd) {
+	resources = ([
+	  "stack" :	  ({   0, -1, 0 }),
+	  "ticks" :	  ({   0, -1, 0 }),
+	  "tick usage" :  ({ 0.0, -1, 0 })
+	]) + resources;
     }
 }

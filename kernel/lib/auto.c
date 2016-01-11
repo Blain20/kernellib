@@ -59,6 +59,17 @@ nomask void _F_rsrc_incr(string rsrc, int incr)
     }
 }
 
+/*
+ * NAME:	_F_rsrc_reset()
+ * DESCRIPTION:	Reset a resource associated with this object
+ */
+void _F_rsrc_reset(string name)
+{
+    if (previous_program() == RSRC_OBJ) {
+	resources[name] = nil;
+    }
+}
+
 void create(varargs int clone) { }	/* default high-level create function */
 
 /*
@@ -1697,3 +1708,25 @@ static void connect(string address, int port)
     ::connect(address, port);
 }
 # endif /* SYS_NETWORKING */
+
+/*
+ * NAME:	_F_query_resources()
+ * DESCRIPTION:	Return resources tracked by an object.
+ */
+nomask mapping _F_query_resources()
+{
+    if (SYSTEM() && resources) {
+	return resources[..];
+    }
+}
+
+/*
+ * NAME:	_F_reset_resources()
+ * DESCRIPTION:	Reset resources tracked by an object.
+ */
+nomask void _F_reset_resources()
+{
+    if (SYSTEM()) {
+	resources = nil;
+    }
+}
