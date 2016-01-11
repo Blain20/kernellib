@@ -134,3 +134,15 @@ static int rsrc_incr(string owner, string name, mixed index, int incr,
     }
     return rsrcd->rsrc_incr(owner, name, index, incr, force);
 }
+
+/*
+ * NAME:	rsrc_reset()
+ * DESCRIPTION:	reset a resource to zero
+ */
+static void rsrc_reset(string owner, string name, varargs mixed index)
+{
+    if (!name) {
+        error("Bad arguments for rsrc_reset");
+    }
+    rsrcd->rsrc_reset(owner, name, index);
+}
