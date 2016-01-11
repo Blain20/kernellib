@@ -59,6 +59,17 @@ nomask void _F_rsrc_incr(string rsrc, int incr)
     }
 }
 
+/*
+ * NAME:	_F_rsrc_reset()
+ * DESCRIPTION:	Reset a resource associated with this object
+ */
+void _F_rsrc_reset(string name)
+{
+    if (previous_program() == RSRC_OBJ) {
+	resources[name] = nil;
+    }
+}
+
 void create(varargs int clone) { }	/* default high-level create function */
 
 /*
@@ -1652,10 +1663,10 @@ nomask mapping _F_query_resources()
 }
 
 /*
- * NAME:	query_resources()
+ * NAME:	_F_reset_resources()
  * DESCRIPTION:	Reset resources tracked by an object.
  */
-void _F_reset_resources()
+nomask void _F_reset_resources()
 {
     if (SYSTEM()) {
 	resources = nil;

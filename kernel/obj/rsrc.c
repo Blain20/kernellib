@@ -221,6 +221,34 @@ int rsrc_incr(string name, mixed index, int incr, mixed *grsrc, int force)
 }
 
 /*
+ * NAME:	rsrc_reset()
+ * DESCRIPTION:	reset a resource
+ */
+void rsrc_reset(string name, mixed index, mixed *grsrc)
+{
+    if (previous_program() == RSRCD) {
+	if ((int) grsrc[GRSRC_DECAY] != 0) {
+	    resources[name] = nil;
+	} else {
+	    mixed *rsrc;
+
+	    rsrc = resources[name];
+	    if (!rsrc) {
+		return;
+	    } else if (index == nil) {
+		resources[name] = nil;
+	    } else {
+		rsrc[RSRC_INDEXED][index] = nil;
+		if (typeof(index) == T_OBJECT) {
+		    /* let object keep track */
+		    index->_F_rsrc_reset(name);
+		}
+	    }
+	}
+    }
+}
+
+/*
  * NAME:	decayed_incr()
  * DESCRIPTION:	increment or decrement a decaying resource
  */

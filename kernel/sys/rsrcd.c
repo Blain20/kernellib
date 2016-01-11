@@ -301,6 +301,27 @@ int rsrc_incr(string owner, string name, mixed index, int incr,
 }
 
 /*
+ * NAME:	rsrc_reset()
+ * DESCRIPTION:	reset a resource to zero
+ */
+void rsrc_reset(string owner, string name, varargs mixed index)
+{
+    if (KERNEL()) {
+	object obj;
+
+	if (!(obj=owners[owner])) {
+	    error("No such resource owner: " + owner);
+	}
+
+	if (!resources[name]) {
+	    error("No such resource");
+	}
+
+	return obj->rsrc_reset(name, index);
+    }
+}
+
+/*
  * NAME:	call_limits()
  * DESCRIPTION:	handle stack and tick limits for _F_call_limited
  */
