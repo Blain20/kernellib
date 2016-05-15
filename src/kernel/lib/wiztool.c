@@ -1931,18 +1931,26 @@ private string percentage(mixed part, mixed total)
     return "(" + ralign((int) ((float) part * 100.0 / (float) total), 3) + "%)";
 }
 
+/*
+ * NAME:	sector_size()
+ * DESCRIPTION:	show a sector size
+ */
 private string sector_size(int amt)
 {
-	int w;
-	int t;
+    int w;
+    int t;
 
-	amt *= 10;
-	amt /= 1024;
+    amt *= 10;
+    amt /= 1024;
 
-	w = amt / 10;
-	t = amt % 10;
+    w = amt / 10;
+    t = amt % 10;
 
+    if (t) {
 	return w + "." + t + "K";
+    } else {
+	return w + "K";
+    }
 }
 
 /*
