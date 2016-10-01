@@ -4,7 +4,7 @@
 
 telnet_port	= 6047;			/* telnet port number */
 binary_port	= 6048;			/* binary port number */
-directory	= "/home/dworkin/kernellib/src";
+directory	= "/home/dgd/git/kernellib/src";
 					/* base directory (MUST be absolute) */
 users		= 40;			/* max # of users */
 editors		= 40;			/* max # of editor sessions */
