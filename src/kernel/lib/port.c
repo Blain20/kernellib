@@ -56,6 +56,15 @@ void set_port(int new_port)
 }
 
 /*
+ * NAME:	query_port()
+ * DESCRIPTION:	return the port number
+ */
+int query_port()
+{
+    return port;
+}
+
+/*
  * NAME:	close()
  * DESCRIPTION:	close associated UDP port, if there is any
  */
